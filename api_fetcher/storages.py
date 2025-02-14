@@ -16,6 +16,10 @@ def write_to_db(data: list[PostModel]) -> None:
         try:
             db.add_all(data)
             db.commit()
+
+            for post in data:
+                db.refresh(post)
+
         except SQLAlchemyError as error:
             db.rollback()
             raise error
