@@ -12,6 +12,8 @@ from api_fetcher.exceptions import (
 )
 from api_fetcher.schemas import PostSchema
 from pydantic import ValidationError
+from api_fetcher.storages import write_to_db, write_to_csv
+from sqlalchemy.exc import SQLAlchemyError
 
 
 JSONPLACEHOLDER_URL = "https://jsonplaceholder.typicode.com/posts"
@@ -69,7 +71,15 @@ async def get_posts(session: aiohttp.ClientSession) -> list[dict]:
 async def main():
     async with aiohttp.ClientSession() as session:
         posts = await get_posts(session)
-        data_for_db = create_post_instances(posts)
+        data_to_write = create_post_instances(posts)
+
+        if data_to_write:
+            try:
+                write_to_db(data_to_write)
+                write_to_csv(data_to_write)
+            except SQLAlchemyError as error:
+                raise SQLAlchemyError(f"Error while working with database: {error}")
+
 
 
 if __name__ == "__main__":

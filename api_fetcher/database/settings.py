@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
@@ -9,8 +11,9 @@ sqlite_connection = sqlite_engine.connect()
 SqliteSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=sqlite_connection)
 
 
+@contextmanager
 def get_db() -> Session:
-    db = SqliteSessionLocal()
+    db: Session = SqliteSessionLocal()
 
     try:
         yield db
