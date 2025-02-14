@@ -81,6 +81,5 @@ async def main():
                 raise SQLAlchemyError(f"Error while working with database: {error}")
 
 
-
 if __name__ == "__main__":
     asyncio.run(main())
