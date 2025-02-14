@@ -4,6 +4,7 @@ from pathlib import Path
 from lxml import etree
 
 from file_processing.arg_parser import get_args
+from file_processing.json_saver import save_to_json
 from file_processing.validators import (
     id_validator,
     price_validator,
@@ -22,6 +23,7 @@ def check_dirs(args: argparse.Namespace) -> tuple[Path, Path]:
     if target_file.exists() and target_file.is_dir():
         raise FileExistsError("The path points to a directory, not a file.")
 
+    target_file.parent.mkdir(parents=True, exist_ok=True)
     target_file.touch(exist_ok=True)
 
     return source_file, target_file
@@ -30,7 +32,7 @@ def check_dirs(args: argparse.Namespace) -> tuple[Path, Path]:
 def check_tag(data: etree._Element, tag: str) -> str:
     tag_element = data.find(tag)
 
-    if not tag_element or not tag_element.text.strip():
+    if tag_element is None or not tag_element.text.strip():
         raise ValueError(f"Missing or empty <{tag}> tag.")
 
     return tag_element.text.strip()
@@ -63,6 +65,7 @@ def extract_data(path: Path) -> dict:
 def main(args: argparse.Namespace):
     source_file, target_file = check_dirs(args)
     extracted_data = extract_data(source_file)
+    save_to_json(data=extracted_data, output_path=target_file)
 
 
 if __name__ == "__main__":
