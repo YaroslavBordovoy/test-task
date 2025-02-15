@@ -4,6 +4,7 @@ from pathlib import Path
 
 from cli_log_analyzer.arg_parser import get_args
 from cli_log_analyzer.dataclass import NginxLog
+from cli_log_analyzer.utilities import analyze_data
 
 
 def check_file(args: argparse.Namespace) -> Path:
@@ -33,8 +34,8 @@ def data_formater(data: list[str]) -> list[NginxLog]:
                     timestamp=re.search(r"\d+/\w{3}/\d+:\d+:\d+:\d+ [+-]\d+", element).group(0),
                     method = re.search(r'"([A-Z]{3,10}) ', element).group(1),
                     path_ = re.search(r"/[\w./?=&-]* ", element).group(0),
-                    status = re.search(r'" (\d{3}) ', element).group(1),
-                    response_size = re.search(r"\d+$", element).group(0),
+                    status = int(re.search(r'" (\d{3}) ', element).group(1)),
+                    response_size = int(re.search(r"\d+$", element).group(0)),
                 )
             )
     except AttributeError as error:
@@ -48,6 +49,7 @@ def main(args: argparse.Namespace) -> None:
 
     raw_data = extract_data(access_file)
     processed_data = data_formater(raw_data)
+    analyze_data(processed_data)
 
 
 if __name__ == "__main__":

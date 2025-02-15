@@ -7,5 +7,5 @@ class NginxLog:
     timestamp: str
     method: str
     path_: str
-    status: str
-    response_size: str
+    status: int
+    response_size: int
