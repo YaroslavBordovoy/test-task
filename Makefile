@@ -24,9 +24,6 @@ help:
 	@echo "  run           Start the application in Docker"
 	@echo "  stop          Down the container"
 
-	@echo "  lint      Run isort and Ruff on a specific path"
-	@echo "  clean     Remove __pycache__ files"
-
 .PHONY: deps
 deps:
 	${POETRY} install --no-root
@@ -89,7 +86,7 @@ build:
 
 .PHONY: run
 run:
-	docker run -dit --name $(CONTAINER_NAME) $(CONTAINER_NAME) bash
+	docker run -dit --name $(CONTAINER_NAME) -v $(PWD)/file_processing:/usr/file_processing $(CONTAINER_NAME) bash
 
 .PHONY: stop
 stop:
