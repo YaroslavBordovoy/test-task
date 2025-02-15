@@ -1,9 +1,18 @@
-from pathlib import Path
+import argparse
 import re
+from pathlib import Path
+
+from cli_log_analyzer.arg_parser import get_args
 from cli_log_analyzer.dataclass import NginxLog
 
 
-PATH_TO_LOG_FILE = Path(__file__).parent / "nginx.log"
+def check_file(args: argparse.Namespace) -> Path:
+    source_file = Path(args.log_file).resolve()
+
+    if not source_file.is_file():
+        raise FileNotFoundError(f"The file {args.log_file} was not found.")
+
+    return source_file
 
 
 def extract_data(input_path: Path) -> list[str]:
@@ -34,13 +43,13 @@ def data_formater(data: list[str]) -> list[NginxLog]:
     return entity_list
 
 
-def main(input_path: Path) -> None:
-    if not input_path:
-        raise FileNotFoundError("File path not passed.")
+def main(args: argparse.Namespace) -> None:
+    access_file = check_file(args)
 
-    raw_data = extract_data(input_path)
+    raw_data = extract_data(access_file)
     processed_data = data_formater(raw_data)
 
 
 if __name__ == "__main__":
-    main(PATH_TO_LOG_FILE)
+    args = get_args()
+    main(args)
