@@ -27,7 +27,7 @@ class TaskManagerModel(Base):
     )
 
     def __repr__(self):
-        return f"<TaskManager(id={self.id}, title={self.title}), due_date={self.due_date}, status={self.status}>"
+        return f"<TaskManager(id={self.id}, title={self.title}, due_date={self.due_date}, status={self.status})>"
 
     @classmethod
     def default_order_by(cls):

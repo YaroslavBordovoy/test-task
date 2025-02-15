@@ -1,5 +1,5 @@
 from datetime import datetime
-from modulefinder import Module
+from task_manager.logging import logger
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -45,6 +45,10 @@ class TaskManager:
 
         self.db.add(new_task)
         self.db.commit()
+        logger.info(
+            f"New task added: ID={new_task.id}, title='{new_task.title}', "
+            f"due={new_task.due_date}."
+        )
 
     def update_task_status(self, status: str, task_id: int = None, title: str = None) -> None:
         if status not in TaskStatus.__members__.values():
@@ -55,15 +59,21 @@ class TaskManager:
         task_to_update.status = status
 
         self.db.commit()
+        logger.info(
+            f"The status of the task with the name <{task_to_update.title}> "
+            f"has been updated: {task_to_update.status.value}."
+        )
 
-    def task_list(self) -> list[TaskManagerModel]:
-        return list(self.db.scalars(select(TaskManagerModel).order_by(TaskManagerModel.due_date)))
+    def task_list(self) -> None:
+        logger.info(list(self.db.scalars(select(TaskManagerModel).order_by(TaskManagerModel.due_date))))
 
     def delete_task(self, task_id: int = None, title: str = None) -> None:
         task_to_delete = self.check_for_argument_existence(self.db, task_id, title)
 
         self.db.delete(task_to_delete)
         self.db.commit()
+
+        logger.info(f"Task with name <{task_to_delete.title}> deleted.")
 
 
 def main() -> None:
