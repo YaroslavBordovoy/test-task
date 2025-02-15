@@ -1,8 +1,10 @@
 from datetime import datetime
+from modulefinder import Module
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from task_manager.cli import get_args
 from task_manager.database.models.task_manager import TaskManagerModel, TaskStatus
 from task_manager.database.settings import get_db
 
@@ -27,19 +29,25 @@ class TaskManager:
         return task
 
     def add_task(self, title: str, description: str, due_date: str) -> None:
-        date = datetime.strptime(due_date, "%Y-%m-%d").date()
+        title_exist = self.db.scalar(select(TaskManagerModel).where(TaskManagerModel.title == title))
+
+        if title_exist:
+            raise ValueError(f"A task named <{title}> already exists.")
+
+        date = datetime.strptime(due_date, "%d-%m-%Y").date()
 
         new_task = TaskManagerModel(
             title=title,
             description=description,
             due_date=date,
+            status=TaskStatus.PENDING,
         )
 
         self.db.add(new_task)
         self.db.commit()
 
     def update_task_status(self, status: str, task_id: int = None, title: str = None) -> None:
-        if status not in TaskStatus.__members__:
+        if status not in TaskStatus.__members__.values():
             raise ValueError("Invalid status.")
 
         task_to_update = self.check_for_argument_existence(self.db, task_id, title)
@@ -48,7 +56,7 @@ class TaskManager:
 
         self.db.commit()
 
-    def task_list(self) -> list:
+    def task_list(self) -> list[TaskManagerModel]:
         return list(self.db.scalars(select(TaskManagerModel).order_by(TaskManagerModel.due_date)))
 
     def delete_task(self, task_id: int = None, title: str = None) -> None:
@@ -56,3 +64,35 @@ class TaskManager:
 
         self.db.delete(task_to_delete)
         self.db.commit()
+
+
+def main() -> None:
+    args = get_args()
+    manager = TaskManager()
+
+    if args.command == "add":
+        manager.add_task(
+            title=args.title,
+            description=args.description,
+            due_date=args.due_date,
+        )
+
+    elif args.command == "update":
+        manager.update_task_status(
+            status=args.status,
+            task_id=args.task_id,
+            title=args.title,
+        )
+
+    elif args.command == "list":
+        manager.task_list()
+
+    elif args.command == "delete":
+        manager.delete_task(
+            task_id=args.task_id,
+            title=args.title,
+        )
+
+
+if __name__ == "__main__":
+    main()
