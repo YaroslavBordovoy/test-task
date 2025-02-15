@@ -162,3 +162,4 @@ cython_debug/
 posts.db
 posts.csv
 analysis_result.txt
+tasks.db
