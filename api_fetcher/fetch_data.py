@@ -75,7 +75,7 @@ async def get_posts(session: aiohttp.ClientSession) -> list[dict]:
         raise APITimeoutError()
 
 
-async def main():
+async def main() -> None:
     async with aiohttp.ClientSession() as session:
         posts = await get_posts(session)
         data_to_write = create_post_instances(posts)

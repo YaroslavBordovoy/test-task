@@ -62,7 +62,7 @@ def extract_data(path: Path) -> dict:
         }
 
 
-def main(args: argparse.Namespace):
+def main(args: argparse.Namespace) -> None:
     source_file, target_file = check_dirs(args)
     extracted_data = extract_data(source_file)
     save_to_json(data=extracted_data, output_path=target_file)
