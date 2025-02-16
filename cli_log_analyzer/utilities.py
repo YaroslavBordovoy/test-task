@@ -1,7 +1,18 @@
+import sys
 from collections import Counter
 from pathlib import Path
+import logging
 
 from cli_log_analyzer.dataclass import NginxLog
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(levelname)8s]: %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+    ]
+)
 
 
 def save_result(
@@ -64,7 +75,7 @@ def analyze_data(data: list[NginxLog]) -> None:
         elif 500 <= entity.status < 600:
             server_errors[entity.status] = server_errors.get(entity.status, 0) + 1
 
-    average_weight_of_responses = total_weight_of_responses / len(data) if data else 0
+    average_weight_of_responses = round(total_weight_of_responses / len(data), 2) if data else 0
     top_ip_requests = Counter(ip_storage).most_common(5)
     top_client_errors = Counter(client_errors).most_common(3) or "No client errors"
     top_server_errors = Counter(server_errors).most_common(3) or "No server errors"
@@ -76,7 +87,7 @@ def analyze_data(data: list[NginxLog]) -> None:
         server_err=top_server_errors,
     )
 
-    print(f"Average weight of responses: {average_weight_of_responses}")
-    print(f"Top 5 IP requests: {top_ip_requests}")
-    print(f"Top 3 client errors: {top_client_errors}")
-    print(f"Top 3 server errors: {top_server_errors}")
+    logging.info(f"Average weight of responses: {average_weight_of_responses}")
+    logging.info(f"Top 5 IP requests: {top_ip_requests}")
+    logging.info(f"Top 3 client errors: {top_client_errors}")
+    logging.info(f"Top 3 server errors: {top_server_errors}")

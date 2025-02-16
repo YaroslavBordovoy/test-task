@@ -40,9 +40,8 @@ def validate_json(data: list[dict]) -> list[PostSchema]:
         try:
             validated_posts.append(PostSchema.model_validate(post))
 
-        except ValidationError:
-            raise ValidationError("An error occurred while validating json.")
-
+        except ValidationError as error:
+            raise error
     return validated_posts
 
 
