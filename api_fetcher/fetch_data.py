@@ -21,6 +21,19 @@ JSONPLACEHOLDER_URL = "https://jsonplaceholder.typicode.com/posts"
 
 
 def validate_json(data: list[dict]) -> list[PostSchema]:
+    """
+    Validates a list of post data dictionaries using the PostSchema.
+
+    Args:
+        data (list[dict]): A list of dictionaries representing raw post data.
+
+    Returns:
+        list[PostSchema]: A list of validated PostSchema instances.
+
+    Raises:
+        pydantic.ValidationError:
+            If any of the input dictionaries fail schema validation.
+    """
     validated_posts = []
 
     for post in data:
@@ -34,6 +47,20 @@ def validate_json(data: list[dict]) -> list[PostSchema]:
 
 
 def create_post_instances(data: list[dict]) -> list[PostModel]:
+    """
+    Creates a list of PostModel instances from validated JSON data.
+
+    Args:
+        data (list[dict]): A list of dictionaries containing raw post data.
+
+    Returns:
+        list[PostModel]:
+            A list of PostModel instances if validation is successful.
+            Returns an empty list if no valid posts are found.
+
+    Raises:
+        ValidationError: If the input data does not meet validation requirements.
+    """
     validated_posts = validate_json(data)
 
     if not validated_posts:
@@ -52,6 +79,24 @@ def create_post_instances(data: list[dict]) -> list[PostModel]:
 
 
 async def get_posts(session: aiohttp.ClientSession) -> list[dict]:
+    """
+    Asynchronous function for sending requests to API and receiving the necessary data.
+
+    Args:
+        session (aiohttp.ClientSession): An active aiohttp session used to send HTTP requests.
+
+    Returns:
+        list[dict]:
+            A list of dictionaries, where each dictionary represents a post retrieved from the API.
+            Each post typically contains keys such as 'id, 'userId', 'title', and 'body'.
+
+    Raises:
+        APITimeoutError: If the request times out.
+        APIConnectionError: If there is a connection error.
+        APIResponseError: If the API returns a non-200 status code.
+        APIDataError: If the API response contains invalid JSON.
+
+    """
     logger.info(f"Sending API request: {JSONPLACEHOLDER_URL}.")
     try:
         async with session.get(JSONPLACEHOLDER_URL) as response:
@@ -76,6 +121,16 @@ async def get_posts(session: aiohttp.ClientSession) -> list[dict]:
 
 
 async def main() -> None:
+    """
+    The main asynchronous function to fetch posts, process them,
+    and save them to the database and CSV.
+
+    Returns:
+        None
+
+    Raises:
+        SQLAlchemyError: If an error occurred while writing to the database.
+    """
     async with aiohttp.ClientSession() as session:
         posts = await get_posts(session)
         data_to_write = create_post_instances(posts)

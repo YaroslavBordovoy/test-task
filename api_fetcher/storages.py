@@ -12,6 +12,15 @@ HEADERS = [column.name for column in PostModel.__table__.columns]
 
 
 def write_to_db(data: list[PostModel]) -> None:
+    """
+    The function writes the prepared data to the database.
+
+    Args:
+        data (list[PostModel]): A list of PostModel objects to be saved in the database.
+
+    Returns:
+        None
+    """
     with get_db() as db:
         try:
             db.add_all(data)
@@ -26,6 +35,15 @@ def write_to_db(data: list[PostModel]) -> None:
 
 
 def write_to_csv(data: list[PostModel]) -> None:
+    """
+    The function writes the prepared data to a csv file.
+
+    Args:
+        data (list[dict]):A list of PostModel objects to be saved in the csv file.
+
+    Returns:
+        None
+    """
     csv_file = PATH_TO_CSV_FILE.exists()
 
     with open(PATH_TO_CSV_FILE, "a", encoding="utf-8", newline="") as file:
