@@ -36,9 +36,11 @@ class TaskManager:
         elif title:
             task = db.scalar(select(TaskManagerModel).where(TaskManagerModel.title == title))
         else:
+            logger.error("Either id or title must be provided.")
             raise ValueError("Either id or title must be provided.")
 
         if not task:
+            logger.warning("Task not found.")
             raise ValueError("Task not found.")
 
         return task
@@ -86,6 +88,7 @@ class TaskManager:
             title (Optional[str]): The title of the task.
         """
         if status not in TaskStatus.__members__.values():
+            logger.error(f"You cannot set the status <{status}>.")
             raise ValueError("Invalid status.")
 
         task_to_update = self.check_for_argument_existence(self.db, task_id, title)

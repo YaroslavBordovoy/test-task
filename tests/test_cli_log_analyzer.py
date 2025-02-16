@@ -1,6 +1,8 @@
 import argparse
 from pathlib import Path
+
 import pytest
+from pytest_mock import MockerFixture
 
 from cli_log_analyzer.dataclass import NginxLog
 from cli_log_analyzer.log_analyzer import check_file, extract_data, data_formater
@@ -132,7 +134,7 @@ def test_invalid_data_formater(file_content: list[str], expected_result: Excepti
     ]
 )
 def test_analyze_data_logging(
-        mocker,
+        mocker: MockerFixture,
         test_data: list[NginxLog],
         expected_avg_size: float,
         expected_top_ips: list[tuple],
