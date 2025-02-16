@@ -23,6 +23,7 @@ help:
 	@echo "  build         Build Docker image"
 	@echo "  run           Start the application in Docker"
 	@echo "  stop          Down the container"
+	@echo "  test          Run tests"
 
 .PHONY: deps
 deps:
@@ -91,3 +92,7 @@ run:
 .PHONY: stop
 stop:
 	docker stop $(CONTAINER_NAME) && docker rm $(CONTAINER_NAME)
+
+.PHONY: test
+test:
+	docker exec -it test-task pytest tests --tb=short -v

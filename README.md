@@ -61,3 +61,10 @@ make list
 - **Update the task status:** pending, in_progress, completed. An additional argument is required: task ID or title.
 - **Delete a task: an additional argument is required:** task ID or title.
 - **Output a list of tasks:** the list is sorted by completion date.
+
+### Tests
+Run script:
+```
+make test
+```
+![img.png](img.png)
