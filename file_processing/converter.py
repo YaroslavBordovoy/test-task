@@ -13,6 +13,23 @@ from file_processing.validators import (
 
 
 def check_dirs(args: argparse.Namespace) -> tuple[Path, Path]:
+    """
+    Validates and prepares input and output paths for processing.
+
+    Args:
+        args (argparse.Namespace):
+            Parsed command-line arguments containing input and output file paths.
+
+    Returns:
+        tuple[Path, Path]:
+            A tuple containing the validated source file path and target file path.
+
+    Raises:
+        FileNotFoundError:
+            If the specified input file does not exist.
+        FileExistsError:
+            If the specified output path is a directory instead of a file.
+    """
     source_file = Path(args.input_dir)
 
     if not source_file.is_file():
@@ -30,6 +47,20 @@ def check_dirs(args: argparse.Namespace) -> tuple[Path, Path]:
 
 
 def check_tag(data: etree._Element, tag: str) -> str:
+    """
+    Extracts and validates the text content of a specified XML tag.
+
+    Args:
+        data (etree._Element): The parsed XML data structure.
+        tag (str): The name of the XML tag to extract.
+
+    Returns:
+        str: The text content of the tag if present and non-empty.
+
+    Raises:
+        ValueError:
+            If the specified tag is missing or contains empty content.
+    """
     tag_element = data.find(tag)
 
     if tag_element is None or not tag_element.text.strip():
@@ -39,10 +70,26 @@ def check_tag(data: etree._Element, tag: str) -> str:
 
 
 def extract_data(path: Path) -> dict:
+    """
+    Extracts and validates structured data from an XML file.
+
+    Args:
+        path (Path): The file path to the XML file containing the data.
+
+    Returns:
+        dict: A dictionary containing validated fields: 'id', 'name', 'price', 'category'.
+
+    Raises:
+        ValueError: If any required XML tag is missing or empty.
+        etree.XMLSyntaxError: If the XML file has syntax errors or is malformed.
+    """
     with open(path, "r") as file:
         raw_data = file.read()
 
-        processed_data = etree.fromstring(raw_data)
+        try:
+            processed_data = etree.fromstring(raw_data)
+        except etree.XMLSyntaxError:
+            raise ValueError("Invalid XML structure.")
 
         id_ = int(check_tag(processed_data, "id"))
         name = check_tag(processed_data, "name")
@@ -63,6 +110,16 @@ def extract_data(path: Path) -> dict:
 
 
 def main(args: argparse.Namespace) -> None:
+    """
+    Main function to process XML data and save it as JSON.
+
+    Args:
+        args (argparse.Namespace):
+            Parsed command-line arguments containing input and output file paths.
+
+    Returns:
+        None
+    """
     source_file, target_file = check_dirs(args)
     extracted_data = extract_data(source_file)
     save_to_json(data=extracted_data, output_path=target_file)
